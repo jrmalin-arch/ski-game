@@ -12,7 +12,7 @@ body {
 #game-container {
     position: relative;
     border: 4px solid #fff;
-    background: #f0f8ff;
+    background: #e0e8f0; /* Changed from AliceBlue to Light Grey */
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
 
@@ -20,8 +20,8 @@ canvas {
     display: block;
     max-width: 100vw;
     max-height: 90vh;
-    background: #f0f8ff;
-    touch-action: none; /* Critical for mobile play */
+    background: #e0e8f0; /* Match container background */
+    touch-action: none;
 }
 
 #ui {
@@ -31,5 +31,5 @@ canvas {
     font-size: 24px;
     font-weight: bold;
     color: #333;
-    pointer-events: none; /* Allows clicks to pass through to the game */
+    pointer-events: none;
 }

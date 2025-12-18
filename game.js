@@ -5,7 +5,6 @@ const scoreElement = document.getElementById('score');
 canvas.width = 400;
 canvas.height = 600;
 
-// Game State
 let score = 0;
 let highScore = 0;
 try {
@@ -18,7 +17,6 @@ let gameActive = true;
 let gameSpeed = 3;
 let leanAngle = 0;
 
-// Balancing
 const baseSpawnRate = 0.03;
 const maxSpawnRate = 0.12;
 const difficultyScale = 5000;
@@ -33,7 +31,7 @@ const skier = {
 
 let trees = [];
 let portals = [];
-let particles = []; // NEW: Powder trail storage
+let particles = [];
 
 const portalTypes = [
     { name: 'MALIN COFFEE HUT', url: 'https://coffee.jeremymalin.com', color: '#6F4E37' }
@@ -61,14 +59,14 @@ window.addEventListener('touchend', () => {
     if (!gameActive) restartGame();
 });
 
-// NEW: Function to create snow particles
 function createPowder() {
     if (gameActive) {
+        // Spawn powder at the back of the skis
         particles.push({
-            x: skier.x + skier.width / 2 + (Math.random() * 6 - 3),
+            x: skier.x + skier.width / 2 + (Math.random() * 10 - 5),
             y: skier.y + skier.height,
-            size: Math.random() * 4 + 2,
-            opacity: 1
+            size: Math.random() * 5 + 2,
+            opacity: 0.8
         });
     }
 }
@@ -98,7 +96,7 @@ function update() {
     if (keys['ArrowLeft'] && skier.x > 5) {
         skier.x -= 5;
         leanAngle = -0.2;
-        createPowder(); // Create more powder when turning
+        createPowder();
     } else if (keys['ArrowRight'] && skier.x < canvas.width - skier.width - 5) {
         skier.x += 5;
         leanAngle = 0.2;
@@ -107,17 +105,17 @@ function update() {
         leanAngle = 0;
     }
 
-    // Passive powder creation
-    if (Math.random() > 0.5) createPowder();
+    if (Math.random() > 0.4) createPowder();
 
-    // Update particles (Snow trail)
+    // Update particles
     for (let i = particles.length - 1; i >= 0; i--) {
         particles[i].y -= gameSpeed;
-        particles[i].opacity -= 0.02; // Fade out
-        if (particles[i].opacity <= 0) particles.splice(i, 1);
+        particles[i].opacity -= 0.015;
+        if (particles[i].opacity <= 0) {
+            particles.splice(i, 1);
+        }
     }
 
-    // Move Trees
     for (let i = trees.length - 1; i >= 0; i--) {
         trees[i].y -= gameSpeed;
         if (checkCollision(skier, trees[i])) handleGameOver();
@@ -129,7 +127,6 @@ function update() {
         }
     }
 
-    // Move Portals
     for (let i = portals.length - 1; i >= 0; i--) {
         portals[i].y -= gameSpeed;
         if (checkCollision(skier, portals[i])) {
@@ -152,7 +149,7 @@ function checkCollision(rect1, rect2) {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 1. Draw Powder Trail
+    // 1. Draw Powder Trail (White circles on grey background)
     particles.forEach(p => {
         ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
         ctx.beginPath();
@@ -164,6 +161,14 @@ function draw() {
     portals.forEach(p => {
         ctx.fillStyle = p.color;
         ctx.fillRect(p.x, p.y, p.width, p.height);
+        // Hut Roof
+        ctx.fillStyle = '#4a3223';
+        ctx.beginPath();
+        ctx.moveTo(p.x - 5, p.y);
+        ctx.lineTo(p.x + p.width/2, p.y - 15);
+        ctx.lineTo(p.x + p.width + 5, p.y);
+        ctx.fill();
+        
         ctx.fillStyle = 'white';
         ctx.font = 'bold 9px Arial';
         ctx.textAlign = 'center';
@@ -171,12 +176,16 @@ function draw() {
     });
 
     // 3. Draw Trees
-    ctx.fillStyle = '#2d5a27';
     trees.forEach(tree => {
+        // Trunk
+        ctx.fillStyle = '#4a3223';
+        ctx.fillRect(tree.x + tree.width/2 - 2, tree.y + tree.height - 5, 4, 8);
+        // Leaves
+        ctx.fillStyle = '#2d5a27';
         ctx.beginPath();
         ctx.moveTo(tree.x + tree.width / 2, tree.y);
-        ctx.lineTo(tree.x, tree.y + tree.height);
-        ctx.lineTo(tree.x + tree.width, tree.y + tree.height);
+        ctx.lineTo(tree.x, tree.y + tree.height - 5);
+        ctx.lineTo(tree.x + tree.width, tree.y + tree.height - 5);
         ctx.fill();
     });
 
